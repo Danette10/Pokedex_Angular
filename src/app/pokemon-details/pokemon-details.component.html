@@ -1,0 +1,11 @@
+<div class="poke-info">
+  <h2>{{ name }} est un pokémon de type <em>{{ type }}</em></h2>
+  <div class="card-poke">
+    <img [src]="image" alt="image" />
+    <div class="stats">
+      <div *ngFor="let stat of stats">
+        <p>{{ stat.key}}: {{ stat.value }}</p>
+      </div>
+    </div>
+  </div>
+</div>
