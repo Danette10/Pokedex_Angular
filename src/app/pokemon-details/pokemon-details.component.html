@@ -1,11 +1,47 @@
 <div class="poke-info">
+
   <h2>{{ name }} est un pokémon de type <em>{{ type }}</em></h2>
+
   <div class="card-poke">
-    <img [src]="image" alt="image" />
-    <div class="stats">
+
+    <app-pokemon-tile [pokemon]="pokemon"></app-pokemon-tile>
+
+    <div class="stats" *ngIf="!isAdmin() || !isEditing">
+
       <div *ngFor="let stat of stats">
+
         <p>{{ stat.key}}: {{ stat.value }}</p>
+
       </div>
+
+      <button mat-flat-button color="primary" (click)="modify(); storeOriginalStats()">Modifier</button>
+
     </div>
+
+    <div class="modify-stats-form" *ngIf="isAdmin() && isEditing">
+
+      <form>
+
+        <div *ngFor="let stat of stats">
+
+          <mat-form-field appearance="fill">
+
+            <mat-label>{{ stat.key }}</mat-label>
+
+            <input matInput type="number" [(ngModel)]="stat.value" name="{{stat.key}}" required>
+
+          </mat-form-field>
+
+        </div>
+
+        <button type="button" mat-flat-button color="primary" (click)="toggleEditMode()">Enregistrer</button>
+
+        <button type="button" mat-flat-button color="warn" (click)="cancelEditMode()">Annuler</button>
+
+      </form>
+
+    </div>
+
   </div>
+
 </div>
