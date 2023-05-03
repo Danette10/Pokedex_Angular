@@ -13,20 +13,6 @@ export class PokemonService {
   constructor(private http: HttpClient) {}
 
   getDefaultPokemonList(): Observable<Pokemon[]> {
-    const defaultLimit = 30;
-    const url = `${this.apiBaseUrl}/pokemon/limit/${defaultLimit}`;
-
-    return this.http.get<any[]>(url).pipe(
-      map((data) =>
-        data.map((item: any) => {
-          const pokemon = new Pokemon(item.id, item.name, item.image, defaultLimit);
-          pokemon.id = item.id;
-          pokemon.name = item.name;
-          pokemon.image = item.image;
-          pokemon.defaultPokemon = defaultLimit;
-          return pokemon;
-        })
-      )
-    );
+    return this.http.get<Pokemon[]>(`${this.apiBaseUrl}/pokemon/limit/30`)
   }
 }
