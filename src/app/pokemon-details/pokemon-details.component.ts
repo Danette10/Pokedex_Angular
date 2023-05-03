@@ -79,11 +79,15 @@ export class PokemonDetailsComponent {
 
     if (this.isAdmin()) {
 
-      this.isEditing = !this.isEditing;
-
       if (this.isEditing) {
 
-        this.storeOriginalStats();
+        if(confirm("Voulez-vous vraiment modifier les statistiques ?")) {
+
+          this.isEditing = !this.isEditing;
+
+          this.storeOriginalStats();
+
+        }
 
       }
 
