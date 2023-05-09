@@ -18,3 +18,8 @@
 button{
   margin-right: 10px;
 }
+
+.modify-stats-form form div{
+  display: flex;
+  flex-direction: column;
+}
