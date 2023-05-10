@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {Pokemon} from "../models/pokemon.model";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {Stat} from "../models/stat.model";
+import { Pokemon } from "../models/pokemon.model";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from '@angular/router';
 import { map, switchMap } from 'rxjs/operators';
 
@@ -12,21 +11,13 @@ import { map, switchMap } from 'rxjs/operators';
   styleUrls: ['./pokemon-details.component.css']
 })
 export class PokemonDetailsComponent implements OnInit {
-  name!: string;
-  image!: string;
-  type!: string;
-  minStat = 10;
-  maxStat = 100;
-
-  // @ts-ignore
-  pokemon: Pokemon;
+  pokemon!: Pokemon;
   isConnected = false;
   isEditing = false;
-  stats!: Stat;
-  originalStats!: Stat;
-
   statsForm!: FormGroup;
 
+  private minStat = 10;
+  private maxStat = 100;
 
   constructor(
     private http: HttpClient,
@@ -34,77 +25,60 @@ export class PokemonDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.fetchPokemon();
+  }
+
+  private fetchPokemon(): void {
     this.route.params.pipe(
       map(params => params['id']),
       switchMap(id => this.http.get(`https://pokebuildapi.fr/api/v1/pokemon/${id}`))
     ).subscribe((data: any) => {
       this.pokemon = data;
-      this.name = data.name;
-      this.image = data.image;
-      this.type = data.apiTypes[0].name;
-      this.stats = data.stats;
-      this.initForm(this.stats);
+      this.initForm(data.stats);
     });
   }
 
-
-  modify() {
-    if(!this.isConnected) {
+  modify(): void {
+    if (!this.isAdmin()) {
       let password = prompt("Entrer votre mot de passe", "");
-      if (password != null && password != "") {
-        if (password == "pokemon") {
-          this.isEditing = true;
-          this.isConnected = true;
-          this.modifyStats(this.stats);
-        } else {
-          alert("Mot de passe incorrect");
-        }
+      if (password === "pokemon") {
+        this.isConnected = true;
+      } else {
+        alert("Mot de passe incorrect");
+        return;
       }
-    }else{
-        this.isEditing = true;
     }
+    this.isEditing = true;
   }
 
   isAdmin(): boolean {
     return this.isConnected;
   }
 
-  storeOriginalStats() {
-    this.originalStats = JSON.parse(JSON.stringify(this.stats));
-  }
+  toggleEditMode(): void {
+    if (!this.isAdmin()) return;
 
-  modifyStats(data: Stat): void {
-    this.stats = data;
-    this.storeOriginalStats();
-  }
-  toggleEditMode() {
-    if (this.isAdmin()) {
-      if (this.isEditing) {
-        if (this.statsForm.invalid) {
-          alert("Veuillez remplir correctement les champs");
-          return;
-        }else{
-          if(confirm("Voulez-vous vraiment modifier les statistiques ?")) {
-            this.isEditing = !this.isEditing;
-            this.modifyStats(this.stats);
-            this.stats = this.statsForm.value;
-          }else{
-            return;
-          }
-        }
+    if (this.isEditing && this.statsForm.invalid) {
+      alert("Veuillez remplir correctement les champs");
+      return;
+    }
+
+    if (confirm("Voulez-vous vraiment modifier les statistiques ?")) {
+      this.isEditing = !this.isEditing;
+      if (!this.isEditing) {
+        this.pokemon.stats = this.statsForm.value;
       }
     }
   }
-  cancelEditMode(): boolean {
-    if(confirm("Voulez-vous vraiment annuler les modifications ?")) {
+
+  cancelEditMode(): void {
+    if (confirm("Voulez-vous vraiment annuler les modifications ?")) {
       this.isEditing = false;
-      this.modifyStats(this.originalStats);
-      return true;
-    }else{
-        return false;
+      this.initForm(this.pokemon.stats);
     }
   }
-  private initForm(data: Stat): void {
+
+  private initForm(data: any): void {
     this.statsForm = new FormGroup({
       HP: new FormControl(data.HP, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
       attack: new FormControl(data.attack, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
@@ -113,7 +87,5 @@ export class PokemonDetailsComponent implements OnInit {
       special_defense: new FormControl(data.special_defense, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
       speed: new FormControl(data.speed, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
     });
-
   }
 }
-
