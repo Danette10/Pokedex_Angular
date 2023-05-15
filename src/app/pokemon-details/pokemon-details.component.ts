@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Pokemon } from "../models/pokemon.model";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Data} from '@angular/router';
 
 @Component({
   selector: 'app-pokemon-details',
@@ -22,7 +22,11 @@ export class PokemonDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.fetchPokemon();
+    this.route.data.subscribe(data => {
+      this.pokemon = data['pokemon'];
+      this.initForm(this.pokemon.stats);
+      this.setTypes();
+    });
   }
 
   modifyClicked(): void {
@@ -55,15 +59,6 @@ export class PokemonDetailsComponent implements OnInit {
     }
   }
 
-  private fetchPokemon(): void {
-    // @ts-ignore
-    this.route.data.subscribe((data: { pokemon: Pokemon }) => {
-      this.pokemon = data.pokemon;
-      this.initForm(this.pokemon.stats);
-      this.setTypes();
-    });
-  }
-
   private initForm(data: any): void {
     this.statsForm = new FormGroup({
       HP: new FormControl(data.HP, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
@@ -78,6 +73,6 @@ export class PokemonDetailsComponent implements OnInit {
   private setTypes(): void {
     const typeNames = this.pokemon.apiTypes.map(type => type.name);
     const lastTypeName = typeNames.pop();
-    this.types = typeNames.length ? `${typeNames.join(', ')} et ${lastTypeName}` : lastTypeName;
+    this.types = typeNames.length > 1 ? `${typeNames.join(', ')} et ${lastTypeName}` : lastTypeName;
   }
 }
