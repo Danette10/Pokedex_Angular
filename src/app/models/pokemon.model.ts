@@ -1,4 +1,4 @@
-import {Stat} from "./stat.model";
+import {Stats} from "./stat.model";
 
 export interface Pokemon {
   id: number
@@ -7,9 +7,29 @@ export interface Pokemon {
   image: string
   sprite: string
   slug: string
-  type: string
+  stats: Stats
+  apiTypes: ApiType[]
   apiGeneration: number
-  resistanceModifyingAbilitiesForApi: any
-  apiPreEvolution: any
-  stats: Stat
+  apiResistances: ApiResistance[]
+  resistanceModifyingAbilitiesForApi: any[]
+  apiEvolutions: ApiEvolution[]
+  apiPreEvolution: string
+  apiResistancesWithAbilities: any[]
 }
+
+export interface ApiType {
+  name: string
+  image: string
+}
+
+export interface ApiResistance {
+  name: string
+  damage_multiplier: number
+  damage_relation: string
+}
+
+export interface ApiEvolution {
+  name: string
+  pokedexId: number
+}
+

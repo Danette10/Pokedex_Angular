@@ -14,4 +14,8 @@ export class PokemonService {
   getDefaultPokemonList(): Observable<Pokemon[]> {
     return this.http.get<Pokemon[]>(`${this.apiBaseUrl}/pokemon/limit/30`)
   }
+
+  getPokemonById(pokemonId: number): Observable<Pokemon> {
+    return this.http.get<Pokemon>(`${this.apiBaseUrl}/pokemon/${pokemonId}`)
+  }
 }

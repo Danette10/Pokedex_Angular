@@ -1,12 +1,12 @@
-<div class="poke-info">
+<div class="poke-info" *ngIf="!!pokemon">
 
-  <h2>{{ pokemon.name }} est un pokémon de type <em>{{ pokemon.type }}</em></h2>
-
+  <h2>{{ pokemon.name }} est un pokémon de type {{ types }}</h2>
+<!--{{ pokemon.a }}-->
   <div class="card-poke">
 
     <app-pokemon-tile [pokemon]="pokemon"></app-pokemon-tile>
 
-    <div class="stats" *ngIf="!isAdmin() || !isEditing">
+    <div class="stats" *ngIf="!isEditing">
 
       <div>
         <p>HP : {{ pokemon.stats.HP }}</p>
@@ -17,11 +17,11 @@
         <p>Speed : {{ pokemon.stats.speed }}</p>
       </div>
 
-      <button mat-flat-button color="primary" (click)="modify()">Modifier</button>
+      <button mat-flat-button color="primary" (click)="modifyClicked()">Modifier</button>
 
     </div>
 
-    <div class="modify-stats-form" *ngIf="isAdmin() && isEditing">
+    <div class="modify-stats-form" *ngIf="isEditing">
 
       <form [formGroup]="statsForm">
         <div>
@@ -50,8 +50,8 @@
             <input matInput type="number" formControlName="speed" placeholder="Speed ({{ pokemon.stats.speed }})" required>
           </mat-form-field>
         </div>
-        <button type="button" mat-flat-button color="primary" (click)="toggleEditMode()">Enregistrer</button>
-        <button type="button" mat-flat-button color="warn" (click)="cancelEditMode()">Annuler</button>
+        <button type="button" mat-flat-button color="primary" (click)="saveClicked()">Enregistrer</button>
+        <button type="button" mat-flat-button color="warn" (click)="cancelClicked()">Annuler</button>
       </form>
     </div>
   </div>

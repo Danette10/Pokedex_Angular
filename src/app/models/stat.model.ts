@@ -1,4 +1,4 @@
-export interface Stat {
+export interface Stats {
   HP: string
   attack: string
   defense: string

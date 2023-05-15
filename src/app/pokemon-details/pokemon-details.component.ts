@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Pokemon } from "../models/pokemon.model";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from '@angular/router';
-import { map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-pokemon-details',
@@ -12,15 +10,14 @@ import { map, switchMap } from 'rxjs/operators';
 })
 export class PokemonDetailsComponent implements OnInit {
   pokemon!: Pokemon;
-  isConnected = false;
   isEditing = false;
   statsForm!: FormGroup;
+  types!: string | undefined;
 
   private minStat = 10;
   private maxStat = 100;
 
   constructor(
-    private http: HttpClient,
     private route: ActivatedRoute
   ) {}
 
@@ -28,54 +25,43 @@ export class PokemonDetailsComponent implements OnInit {
     this.fetchPokemon();
   }
 
-  private fetchPokemon(): void {
-    this.route.params.pipe(
-      map(params => params['id']),
-      switchMap(id => this.http.get(`https://pokebuildapi.fr/api/v1/pokemon/${id}`))
-    ).subscribe((data: any) => {
-      this.pokemon = data;
-      this.initForm(data.stats);
-    });
-  }
-
-  modify(): void {
-    if (!this.isAdmin()) {
+  modifyClicked(): void {
+    if (!this.isEditing) {
       let password = prompt("Entrer votre mot de passe", "");
       if (password === "pokemon") {
-        this.isConnected = true;
+        this.isEditing = true;
       } else {
         alert("Mot de passe incorrect");
-        return;
       }
     }
-    this.isEditing = true;
   }
 
-  isAdmin(): boolean {
-    return this.isConnected;
-  }
-
-  toggleEditMode(): void {
-    if (!this.isAdmin()) return;
-
-    if (this.isEditing && this.statsForm.invalid) {
+  saveClicked(): void {
+    if (this.statsForm.invalid) {
       alert("Veuillez remplir correctement les champs");
       return;
     }
 
     if (confirm("Voulez-vous vraiment modifier les statistiques ?")) {
       this.isEditing = !this.isEditing;
-      if (!this.isEditing) {
-        this.pokemon.stats = this.statsForm.value;
-      }
+      this.pokemon.stats = this.statsForm.value;
     }
   }
 
-  cancelEditMode(): void {
+  cancelClicked(): void {
     if (confirm("Voulez-vous vraiment annuler les modifications ?")) {
       this.isEditing = false;
       this.initForm(this.pokemon.stats);
     }
+  }
+
+  private fetchPokemon(): void {
+    // @ts-ignore
+    this.route.data.subscribe((data: { pokemon: Pokemon }) => {
+      this.pokemon = data.pokemon;
+      this.initForm(this.pokemon.stats);
+      this.setTypes();
+    });
   }
 
   private initForm(data: any): void {
@@ -87,5 +73,11 @@ export class PokemonDetailsComponent implements OnInit {
       special_defense: new FormControl(data.special_defense, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
       speed: new FormControl(data.speed, [Validators.min(this.minStat), Validators.max(this.maxStat), Validators.required]),
     });
+  }
+
+  private setTypes(): void {
+    const typeNames = this.pokemon.apiTypes.map(type => type.name);
+    const lastTypeName = typeNames.pop();
+    this.types = typeNames.length ? `${typeNames.join(', ')} et ${lastTypeName}` : lastTypeName;
   }
 }
