@@ -13,6 +13,11 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {MatIconModule} from "@angular/material/icon";
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { pokemonFeatureKey, reducer as pokemonReducer } from './state/pokemon.reducer';
+import {PokemonEffects} from "./state/pokemon.effect";
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 @NgModule({
   declarations: [
@@ -32,7 +37,12 @@ import {MatIconModule} from "@angular/material/icon";
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
-    MatIconModule
+    MatIconModule,
+    StoreModule.forRoot({
+      [pokemonFeatureKey]: pokemonReducer
+    }, ),
+    EffectsModule.forRoot([PokemonEffects]),
+    StoreDevtoolsModule.instrument()
   ],
   providers: [],
   bootstrap: [AppComponent]
